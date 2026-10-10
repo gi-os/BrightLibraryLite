@@ -13,8 +13,8 @@ data class ParsedBook(
     val chapters: List<RawChapter> = emptyList(),
     /**
      * The book's own cover art, exactly as it was stored in the file. Null is a common case —
-     * plenty of EPUBs declare no cover — and the importer falls back to an Open Library lookup
-     * and then to a typographic cover, so nothing downstream treats this as required.
+     * plenty of EPUBs declare no cover — and the shelf falls back to a typographic cover, so
+     * nothing downstream treats this as required.
      *
      * A `ByteArray` in a data class means `equals`/`hashCode` compare by identity. That is fine
      * here (a [ParsedBook] is consumed once, at import, and never compared) but it is why this

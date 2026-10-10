@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.Dp
  * variant, which is tracked out wide and reads as a label rather than as prose.
  *
  * The SDK's own limit is five icon items, but **three if any item is text**. The shelf sits at
- * exactly three (ADD / LIBRARY / SETTINGS), so anything else it has to offer has to be an icon.
+ * two icons (SETTINGS / ADD) in the Lite tool.
  */
 
 private const val TOPBAR_HEIGHT_UNITS = 3f

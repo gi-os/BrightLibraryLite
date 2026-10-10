@@ -119,7 +119,7 @@ private const val PAGE_TURN_DRAG_FRACTION = 0.7f
  */
 private const val NOTCHES_PER_PAGE = 4
 
-/** A turn abandoned for this long starts counting again, matching light-common's own idle
+/** A turn abandoned for this long starts counting again, matching the wheel's own idle
  *  window, so a stray brush never banks toward a later real turn. */
 private const val WHEEL_IDLE_MS = 1_500L
 
