@@ -2,7 +2,6 @@ package com.gios.brightlibrarylite.ui.reader
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -12,14 +11,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextAlign
 import com.gios.brightlibrarylite.data.BookRepository
 import com.gios.brightlibrarylite.data.Fonts
 import com.gios.brightlibrarylite.data.LoadedText
 import com.gios.brightlibrarylite.data.SettingsRepository
+import com.gios.brightlibrarylite.ui.light.LightNotice
 import com.gios.brightlibrarylite.ui.light.LightText
 import com.gios.brightlibrarylite.ui.light.LightTextVariant
-import com.gios.brightlibrarylite.ui.light.lightInset
 import com.gios.brightlibrarylite.ui.theme.toLightPhoneGrey
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -61,13 +59,11 @@ fun BookPages(
         return
     }
     if (text.words.isEmpty()) {
-        Box(Modifier.fillMaxSize().padding(horizontal = lightInset()), contentAlignment = Alignment.Center) {
-            LightText(
-                text = "No readable text in this book.",
-                variant = LightTextVariant.Detail,
-                align = TextAlign.Center,
-            )
-        }
+        LightNotice(
+            message = "No readable text in this book.",
+            actionText = "Back to shelf",
+            onAction = onExit,
+        )
         return
     }
 

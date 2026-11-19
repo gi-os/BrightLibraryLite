@@ -220,7 +220,7 @@ fun EreaderScreen(
     // reading. This is the book's home screen now - opening a book comes straight
     // here - so the bar it reveals carries the way *out* as well: back to the shelf
     // on the left, over to the word reader on the right.
-    var showChrome by remember(bookId) { mutableStateOf(false) }
+    var showChrome by remember(bookId) { mutableStateOf(true) }
     val pagerState = rememberPagerState(initialPage = 0) { pages.size }
     // Whether the pager has been moved to the page the book was left on. Nothing may report a
     // position before that: the pager starts at page 0, so a save fired on the way in would

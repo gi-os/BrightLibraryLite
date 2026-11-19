@@ -92,7 +92,7 @@ fun HomeScreen(
                 Column(Modifier.fillMaxSize()) {
                     ShelfTitle()
                     Box(Modifier.fillMaxWidth().weight(1f)) {
-                        EmptyShelf(modifier = Modifier.align(Alignment.Center))
+                        EmptyShelf(onAddBooks = onAddBooks, modifier = Modifier.align(Alignment.Center))
                     }
                 }
             } else {
@@ -153,15 +153,22 @@ fun HomeScreen(
         }
 
         // While importing with books already on the shelf, the shelf stays usable and the step is
-        // shown here instead of covering it.
-        (if (importing && books.isNotEmpty()) importStep else status)?.let { message ->
-            Column(Modifier.lightClickable { if (!importing) Library.clearMessage() }) {
+        // shown here instead of covering it. Problems are errors, so they are read at Copy size.
+        // A count of files that could not be imported stays until those files are removed.
+        val progress = if (importing && books.isNotEmpty()) importStep else null
+        val problem = if (progress == null && !importing) {
+            status ?: if (sync.failedCount > 0) Library.failedText(sync.failedCount) else null
+        } else {
+            null
+        }
+        (progress ?: problem)?.let { message ->
+            Column(Modifier.lightClickable { if (!importing && status != null) Library.clearMessage() }) {
                 LightRule()
                 LightText(
                     text = message,
-                    variant = LightTextVariant.Detail,
-                    lighten = true,
-                    maxLines = 2,
+                    variant = if (progress != null) LightTextVariant.Detail else LightTextVariant.Copy,
+                    lighten = progress != null,
+                    maxLines = 3,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -203,7 +210,7 @@ private fun ShelfTitle(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun EmptyShelf(modifier: Modifier = Modifier) {
+private fun EmptyShelf(onAddBooks: () -> Unit, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier.padding(horizontal = lightInset()),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -212,10 +219,20 @@ private fun EmptyShelf(modifier: Modifier = Modifier) {
         Spacer(Modifier.height(10f.designVerticalPxToDp()))
         LightText(
             text = "Open the Tool Manager on your computer and drop EPUB, MOBI or CBZ files into " +
-                "BrightLibrary Lite's Books folder. They appear here, cover and all.",
-            variant = LightTextVariant.Detail,
-            lighten = true,
+                "BrightLibrary Lite's Books folder. They appear here, cover and all. " +
+                "Press and hold a book to rename or delete it.",
+            variant = LightTextVariant.Copy,
             align = TextAlign.Center,
+        )
+        Spacer(Modifier.height(14f.designVerticalPxToDp()))
+        LightText(
+            text = "How to add books",
+            variant = LightTextVariant.Button,
+            underline = true,
+            align = TextAlign.Center,
+            modifier = Modifier
+                .lightClickable(onClick = onAddBooks)
+                .padding(vertical = 8f.designVerticalPxToDp()),
         )
     }
 }

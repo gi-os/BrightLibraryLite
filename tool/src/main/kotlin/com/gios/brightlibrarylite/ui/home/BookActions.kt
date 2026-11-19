@@ -71,8 +71,7 @@ fun BookActions(
                 // asking again in a smaller box.
                 LightText(
                     text = "This also deletes the file from the Books folder.",
-                    variant = LightTextVariant.Detail,
-                    lighten = true,
+                    variant = LightTextVariant.Copy,
                     modifier = Modifier.padding(top = 8f.designVerticalPxToDp()),
                 )
                 ActionRow(text = "DELETE — TAP TO CONFIRM", onClick = onDelete)

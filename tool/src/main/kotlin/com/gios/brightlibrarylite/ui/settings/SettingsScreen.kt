@@ -205,7 +205,7 @@ fun SettingsScreen(onBack: () -> Unit) {
 
             SectionTitle("Text")
             IntSliderRow(
-                label = "Font size",
+                label = "FASTREAD font size",
                 value = s.fontSizeSp,
                 range = 16f..160f,
                 step = 2,
