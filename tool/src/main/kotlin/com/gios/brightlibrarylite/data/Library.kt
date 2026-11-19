@@ -44,6 +44,8 @@ object Library {
         val step: String? = null,
         /** What the last sweep has to say: failures and skipped files. Null when there is nothing. */
         val message: String? = null,
+        /** Files in the folder that could not be imported. Stays until the file is removed. */
+        val failedCount: Int = 0,
     )
 
     private val _state = MutableStateFlow(SyncState())
@@ -52,6 +54,10 @@ object Library {
     private val mutex = Mutex()
     private val json = Json { ignoreUnknownKeys = true }
     private val failedSerializer = MapSerializer(String.serializer(), Long.serializer())
+
+    /** "1 book could not be imported", "2 books could not be imported". */
+    fun failedText(count: Int): String =
+        if (count == 1) "1 book could not be imported" else "$count books could not be imported"
 
     fun clearMessage() {
         _state.value = _state.value.copy(message = null)
@@ -106,11 +112,23 @@ object Library {
 
         val toImport = pending.filter { it.extension.lowercase() in SUPPORTED_EXTENSIONS }
         if (toImport.isEmpty()) {
-            _state.value = SyncState(running = false, step = null, message = problems.firstOrNull())
+            val stillFailed = failed.filterKeys { it in present }
+            saveFailed(stillFailed)
+            _state.value = SyncState(
+                running = false,
+                step = null,
+                message = problems.firstOrNull(),
+                failedCount = stillFailed.size,
+            )
             return
         }
 
-        _state.value = SyncState(running = true, step = "Importing…", message = null)
+        _state.value = SyncState(
+            running = true,
+            step = "Importing…",
+            message = null,
+            failedCount = _state.value.failedCount,
+        )
         toImport.forEachIndexed { index, file ->
             val name = relativeName(folder, file)
             val size = file.length()
@@ -134,7 +152,7 @@ object Library {
                         )
                     }
                 }
-            }.getOrElse { Importer.Result.Failed(it.message ?: "Could not read ${file.name}.") }
+            }.getOrElse { Importer.Result.Failed(Importer.couldNotOpen(file.name)) }
 
             when (result) {
                 is Importer.Result.Added -> {
@@ -146,18 +164,24 @@ object Library {
                 }
                 is Importer.Result.Failed -> {
                     failed[name] = size
-                    problems += "${file.name}: ${result.message}"
+                    problems += result.message
                 }
             }
         }
-        saveFailed(failed.filterKeys { it in present })
+        val stillFailed = failed.filterKeys { it in present }
+        saveFailed(stillFailed)
 
         val message = when (problems.size) {
             0 -> null
             1 -> problems.first()
             else -> problems.first() + " (and ${problems.size - 1} more)"
         }
-        _state.value = SyncState(running = false, step = null, message = message)
+        _state.value = SyncState(
+            running = false,
+            step = null,
+            message = message,
+            failedCount = stillFailed.size,
+        )
     }
 
     /** Every regular, visible file under [folder], subfolders included. */

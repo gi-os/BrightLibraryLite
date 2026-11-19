@@ -374,13 +374,20 @@ class AddBooksScreen(sealedActivity: SealedLightActivity) : BooksScreen<Unit>(se
                     lighten = true,
                 )
                 Spacer(Modifier.height(1f.gridUnitsAsDp()))
-                val line = when {
-                    sync.running -> sync.step ?: "Importing…"
-                    sync.message != null -> sync.message
-                    else -> null
-                }
-                if (line != null) {
-                    LightText(text = line, variant = LightTextVariant.Detail)
+                LightText(
+                    text = "Press and hold a book to rename or delete it.",
+                    variant = LightTextVariant.Detail,
+                    lighten = true,
+                )
+                Spacer(Modifier.height(1f.gridUnitsAsDp()))
+                if (sync.running) {
+                    LightText(text = sync.step ?: "Importing…", variant = LightTextVariant.Detail)
+                } else {
+                    sync.message?.let { LightText(text = it, variant = LightTextVariant.Copy) }
+                    if (sync.failedCount > 0) {
+                        Spacer(Modifier.height(6f.designVerticalPxToDp()))
+                        LightText(text = Library.failedText(sync.failedCount), variant = LightTextVariant.Copy)
+                    }
                 }
             }
             LightRule()

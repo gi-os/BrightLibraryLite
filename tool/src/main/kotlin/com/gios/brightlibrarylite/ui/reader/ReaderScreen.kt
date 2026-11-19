@@ -48,6 +48,7 @@ import com.gios.brightlibrarylite.data.Fonts
 import com.gios.brightlibrarylite.data.SettingsRepository
 import com.gios.brightlibrarylite.data.SwipeMode
 import com.gios.brightlibrarylite.ui.PauseHooks
+import com.gios.brightlibrarylite.ui.light.LightNotice
 import com.gios.brightlibrarylite.ui.light.LightText
 import com.gios.brightlibrarylite.ui.light.LightTextVariant
 import com.gios.brightlibrarylite.ui.theme.LocalIsLightPhone
@@ -439,6 +440,9 @@ fun ReaderScreen(
                             if (currentIndex < words.size - 1) currentIndex++
                             pointerX.floatValue = down.position.x
                             isHolding = true
+                            if (!settings.fastReadHintSeen) {
+                                settingsRepo.update { it.copy(fastReadHintSeen = true) }
+                            }
                             val rampUp = settings.rampUpMs.toLong()
                             val minWpm = settings.minWpm.toFloat()
                             val maxWpm = settings.maxWpm.toFloat()
@@ -508,16 +512,11 @@ fun ReaderScreen(
                     LightText("Opening…", LightTextVariant.Copy, lighten = true)
                 }
             } else if (words.isEmpty()) {
-                Box(
-                    modifier = Modifier.fillMaxSize().padding(24.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    LightText(
-                        text = "No readable text in this book.",
-                        variant = LightTextVariant.Detail,
-                        align = TextAlign.Center,
-                    )
-                }
+                LightNotice(
+                    message = "No readable text in this book.",
+                    actionText = "Back",
+                    onAction = { onBack(0) },
+                )
             } else {
                 val quoteInfo = remember(words, paragraphBreakAfter) {
                     computeQuoteInfo(words, paragraphBreakAfter)
@@ -545,6 +544,16 @@ fun ReaderScreen(
                     orpFocalSameColor = settings.orpFocalSameColor,
                     mainWordAlpha = mainWordAnim.value,
                 )
+                if (!settings.fastReadHintSeen) {
+                    LightText(
+                        text = "Hold the right side to read",
+                        variant = LightTextVariant.Copy,
+                        align = TextAlign.Center,
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .padding(top = (settings.fontSizeSp * 1.6f).dp, start = 24.dp, end = 24.dp),
+                    )
+                }
             }
 
             BottomStatus(

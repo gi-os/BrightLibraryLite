@@ -45,6 +45,7 @@ import com.gios.brightlibrarylite.data.SettingsRepository
 import com.gios.brightlibrarylite.ui.light.LightBarItem
 import com.gios.brightlibrarylite.ui.light.LightBottomBar
 import com.gios.brightlibrarylite.ui.light.LightIcons
+import com.gios.brightlibrarylite.ui.light.LightNotice
 import com.gios.brightlibrarylite.ui.light.LightText
 import com.gios.brightlibrarylite.ui.light.LightTextVariant
 import com.gios.brightlibrarylite.ui.light.LightThemeTokens
@@ -88,7 +89,12 @@ fun ComicReader(bookId: String, onBack: () -> Unit) {
     val scope = rememberCoroutineScope()
 
     if (book == null || book.totalWords <= 0) {
-        LaunchedEffect(Unit) { onBack() }
+        LightNotice(
+            message = "Could not open this comic.",
+            actionText = "Back to shelf",
+            onAction = onBack,
+            modifier = Modifier.background(colors.background),
+        )
         return
     }
 

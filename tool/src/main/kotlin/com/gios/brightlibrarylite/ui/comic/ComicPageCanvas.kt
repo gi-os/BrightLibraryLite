@@ -4,6 +4,7 @@ import android.util.LruCache
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -12,6 +13,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.ImageBitmap
@@ -22,6 +24,7 @@ import com.gios.brightlibrarylite.comic.ComicPages
 import com.gios.brightlibrarylite.comic.PageCrop
 import com.gios.brightlibrarylite.ui.light.LightText
 import com.gios.brightlibrarylite.ui.light.LightTextVariant
+import com.gios.brightlibrarylite.ui.light.lightInset
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlin.math.max
@@ -71,6 +74,7 @@ internal fun ComicPageCanvas(
 ) {
     val key = "$bookId#$page"  // the bitmap is the whole page; a strip is a source rect over it
     var loaded by remember(key) { mutableStateOf(PageCache.get(key)) }
+    var failed by remember(key) { mutableStateOf(false) }
 
     LaunchedEffect(key) {
         if (loaded != null) return@LaunchedEffect
@@ -93,13 +97,24 @@ internal fun ComicPageCanvas(
         if (result != null) {
             PageCache.put(key, result)
             loaded = result
+        } else {
+            failed = true
         }
     }
 
     val image = loaded
     if (image == null) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            LightText("${page + 1}", LightTextVariant.Detail, lighten = true)
+            if (failed) {
+                LightText(
+                    "Could not load this page",
+                    LightTextVariant.Copy,
+                    align = TextAlign.Center,
+                    modifier = Modifier.padding(horizontal = lightInset()),
+                )
+            } else {
+                LightText("${page + 1}", LightTextVariant.Detail, lighten = true)
+            }
         }
         return
     }

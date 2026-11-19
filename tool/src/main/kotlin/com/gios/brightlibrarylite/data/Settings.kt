@@ -85,4 +85,6 @@ data class Settings(
      * phone for someone who did not, so it is opt-in. Volume down goes forward, as on any e-reader.
      */
     val volumeKeysTurnPages: Boolean = false,
+    /** Set once the reader has held the right side to read, after which the hint goes away. */
+    val fastReadHintSeen: Boolean = false,
 )

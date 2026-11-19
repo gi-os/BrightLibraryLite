@@ -59,12 +59,12 @@ object Importer {
                 }
             } catch (e: Exception) {
                 ComicPages.delete(id)
-                return Result.Failed(e.message ?: "Could not read that comic.")
+                return Result.Failed(couldNotOpen(displayName))
             }
             val written = converted.pages
             if (written == 0) {
                 ComicPages.delete(id)
-                return Result.Failed("No readable pages in “${title ?: displayName}”.")
+                return Result.Failed(couldNotOpen(displayName))
             }
             val book = Book(
                 id = id,
@@ -121,10 +121,10 @@ object Importer {
             // the guard above is a floor, not a guarantee.
             return Result.Failed("“$displayName” needs more memory than this phone has for a text book.")
         } catch (e: Exception) {
-            return Result.Failed(e.message ?: "Failed to import")
+            return Result.Failed(couldNotOpen(displayName))
         }
         val words = BookRepository.countWords(parsed.text)
-        if (words == 0) return Result.Failed("No readable text found in file")
+        if (words == 0) return Result.Failed(couldNotOpen(displayName))
 
         val book = Book(
             id = id,
@@ -144,6 +144,10 @@ object Importer {
         parsed.coverImage?.takeIf { Covers.looksLikeImage(it) }?.let { repo.setCover(id, it) }
         return Result.Added(repo.getBook(id) ?: book)
     }
+
+    /** What every parser failure is called on screen. The raw parser message is not for the reader. */
+    fun couldNotOpen(fileName: String): String =
+        "Could not open $fileName. It may be damaged or protected."
 
     /** A file name turned into something worth putting on a shelf, when nothing better exists. */
     internal fun tidyName(fileName: String): String =
